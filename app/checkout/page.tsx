@@ -36,7 +36,7 @@ export default function CheckoutPage() {
       }))
     };
 
-    const response = await fetch("/api/orders", {
+    const response = await fetch("/api/checkout", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -46,12 +46,20 @@ export default function CheckoutPage() {
 
     if (!response.ok) {
       setIsSubmitting(false);
-      setError("Unable to place your order right now.");
+      setError("Unable to start checkout right now.");
+      return;
+    }
+
+    const data = (await response.json()) as { url?: string };
+
+    if (!data.url) {
+      setIsSubmitting(false);
+      setError("Payment service did not return a checkout URL.");
       return;
     }
 
     clearCart();
-    router.push("/checkout/success");
+    window.location.href = data.url;
   }
 
   return (
